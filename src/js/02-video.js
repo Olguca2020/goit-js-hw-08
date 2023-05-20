@@ -45,5 +45,5 @@ window.addEventListener('load', function () {
         }
       });
   }
-  localStorage.clear();
+  localStorage.removeItem('videoplayer-current-time');
 });

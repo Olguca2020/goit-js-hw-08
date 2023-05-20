@@ -1,42 +1,28 @@
 import throttle from 'lodash.throttle';
-const refs = {
-  form: document.querySelector(`.feedback-form`),
-  inputEmail: document.querySelector(`input[type="email"]`),
-  textarea: document.querySelector(`textarea[name="message"]`),
-  btnSubmit: document.querySelector(`button[type="submit"]`),
-};
+const form = document.querySelector(`.feedback-form`);
+const emailInput = document.querySelector(`input[type="email"]`);
+const textareaInput = document.querySelector(`textarea[name="message"]`);
 
-refs.textarea.addEventListener(`input`, throttle(onTextareaInput, 500));
-refs.inputEmail.addEventListener(`input`, onEmailInput);
-// refs.form.addEventListener(`submit`, onFormSubmit);
+const formData = {};
+form.addEventListener(`input`, throttle(onInput, 500));
+form.addEventListener(`submit`, onFormSubmit);
 
-function onTextareaInput(e) {
-  const message = e.currentTarget.value;
-  console.log(message);
+populateForm();
+
+function onFormSubmit(e) {
+  e.preventDefault();
+  e.currentTarget.reset();
+  localStorage.removeItem('feedback-form-state');
 }
-function onEmailInput(e) {
-  const email = e.currentTarget.value;
-  return email;
+function onInput(e) {
+  formData[e.target.name] = e.target.value;
+  localStorage.setItem('feedback-form-state', JSON.stringify(formData));
 }
-const save = (key, value) => {
-  try {
-    const serializedState = JSON.stringify(value);
-    localStorage.setItem(key, serializedState);
-  } catch (error) {
-    console.error('Set state error: ', error.message);
+function populateForm() {
+  const savedForm = localStorage.getItem('feedback-form-state');
+  if (savedForm) {
+    const parsForm = JSON.parse(savedForm);
+    emailInput.value = parsForm.email;
+    textareaInput.value = parsForm.message;
   }
-};
-
-const load = key => {
-  try {
-    const serializedState = localStorage.getItem(key);
-    return serializedState === null ? undefined : JSON.parse(serializedState);
-  } catch (error) {
-    console.error('Get state error: ', error.message);
-  }
-};
-
-export default {
-  save,
-  load,
-};
+}
